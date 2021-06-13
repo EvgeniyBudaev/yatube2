@@ -128,3 +128,12 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 LOGIN_URL = '/auth/login/'
 LOGIN_REDIRECT_URL = 'index'
 # LOGOUT_REDIRECT_URL = 'index'
+
+# Email
+
+EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
+EMAIL_FILE_PATH = os.path.join(BASE_DIR, "sent_emails")
+
+# Constants
+
+POSTS_IN_PAGINATOR = 10
