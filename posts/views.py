@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model
 
 from yatube2.settings import POSTS_IN_PAGINATOR
 from .models import Post, Group
+from .forms import PostForm
 
 User = get_user_model()
 
@@ -64,3 +65,17 @@ def post_view(request, username, post_id):
     }
 
     return render(request, 'posts/post.html', context)
+
+
+@login_required
+def new_post(request):
+    if request.method == "POST":
+        form = PostForm(request.POST)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.author = request.user
+            post.save()
+            return redirect("index")
+    form = PostForm()
+
+    return render(request, 'posts/new_post.html', {'form': form})
