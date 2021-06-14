@@ -4,6 +4,7 @@
 
 Запуск сервера
 python3 manage.py runserver
+python manage.py runserver
 
 Создание виртуального окружения
 python3 -m venv venv
@@ -108,6 +109,7 @@ python3 manage.py test posts
 
 # Запустит только тесты из файла test_urls.py в приложении posts
 python3 manage.py test posts.tests.test_urls
+python3 manage.py test posts.tests.test_views -v 2
 
 # Запустит только тесты из класса StaticURLTests для test_urls.py в приложении posts
 python3 manage.py test posts.tests.test_urls.StaticURLTests

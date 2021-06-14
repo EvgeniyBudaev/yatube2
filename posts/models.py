@@ -33,6 +33,8 @@ class Post(models.Model):
                                     db_index=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE,
                                related_name="posts", verbose_name="Автор")
+    image = models.ImageField(upload_to='posts/', blank=True, null=True,
+                              verbose_name="Изображение")
 
     class Meta:
         ordering = ["-pub_date"]

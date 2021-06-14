@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
 from django.urls import reverse
+from django.core.files.uploadedfile import SimpleUploadedFile
 
 from posts.models import Group, Post
 
@@ -11,6 +12,13 @@ class PostFormTests(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        cls.small_gif = (
+            b'\x47\x49\x46\x38\x39\x61\x02\x00'
+            b'\x01\x00\x80\x00\x00\x00\x00\x00'
+            b'\xFF\xFF\xFF\x21\xF9\x04\x00\x00'
+            b'\x00\x00\x00\x2C\x00\x00\x00\x00'
+            b'\x02\x00\x01\x00\x00\x02\x02\x0C'
+            b'\x0A\x00\x3B')
         cls.author = User.objects.create(username='Evgeniy')
         cls.group = Group.objects.create(
             title='Тестовое название группы',
@@ -37,13 +45,22 @@ class PostFormTests(TestCase):
         self.authorized_client.force_login(self.author)
         # Создаем неавторизованный клиент
         self.guest_client = Client()
+        self.uploaded = SimpleUploadedFile(
+            name='small.gif',
+            content=PostFormTests.small_gif,
+            content_type='image/gif'
+        )
 
     def test_post_form_create_new_post(self):
         """Форма создаёт пост в базе и перенаправляет пользователя
         на главную страницу."""
         # Подсчитаем количество записей в Post
         posts_count = Post.objects.count()
-        form_data = {'text': 'Тестовый пост из формы', 'group': self.group.id}
+        form_data = {
+            'text': 'Тестовый пост из формы',
+            'group': self.group.id,
+            'image': self.uploaded
+        }
         new_text_form = 'Тестовый пост из формы'
         # Отправляем POST-запрос
         response = self.authorized_client.post(
@@ -70,7 +87,11 @@ class PostFormTests(TestCase):
     def test_edit_post_in_form(self):
         """проверка редактирования поста."""
         new_text = 'Новый текст'
-        form_data = {'text': new_text, 'group': self.group.id}
+        form_data = {
+            'text': new_text,
+            'group': self.group.id,
+            'image': self.uploaded
+        }
         self.authorized_client.post(
             reverse('post_edit',
                     kwargs={'username': self.author.username,
