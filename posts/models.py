@@ -7,7 +7,9 @@ User = get_user_model()
 class Group(models.Model):
     title = models.CharField(max_length=200,
                              verbose_name="Название сообщества")
-    slug = models.SlugField(max_length=200, unique=True, verbose_name="Адрес")
+    slug = models.SlugField(max_length=200, unique=True, verbose_name="Адрес",
+                            help_text='Задайте уникальный URL адрес названию '
+                                      'сообщества')
     description = models.TextField(null=True, blank=True,
                                    verbose_name="Описание")
 
@@ -30,7 +32,7 @@ class Post(models.Model):
                                     verbose_name="Дата публикации",
                                     db_index=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE,
-                               related_name="posts")
+                               related_name="posts", verbose_name="Автор")
 
     class Meta:
         ordering = ["-pub_date"]

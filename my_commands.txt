@@ -128,6 +128,20 @@ coverage report
 coverage html #  сохранить в виде HTML
 coverage run #  отчёт будет перезаписан
 
+# Расширение встроенного метода save(): если поле slug не заполнено -
+# транслитерировать в латиницу содержимое поля title, обрезать
+# до ста знаков
+# и сохранить в поле slug
+def save(self, *args, **kwargs):
+    if not self.slug:
+        self.slug = slugify(self.title)[:100]
+    super().save(*args, **kwargs)
+
+Хозяйке на заметку: стандартный метод slugify из модуля django.utils.text не
+умеет работать с кириллицей. Нужно установить в виртуальное окружение пакет
+pytils (pip3 install pytils) и импортировать slugify именно из него, как это
+сделано в листинге deals/models.py.
+
 
 # Django Python shell
 python manage.py shell
