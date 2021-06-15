@@ -103,6 +103,22 @@ def post_edit(request, username, post_id):
 
 
 @login_required
+def add_comment(request, username, post_id):
+    post = get_object_or_404(Post, author__username=username, id=post_id)
+    form = CommentForm(request.POST or None)
+    if form.is_valid():
+        comment = form.save(commit=False)
+        comment.post = post
+        comment.author = request.user
+        comment.save()
+        return redirect(
+            'post', post_id=post.id, username=post.author.username)
+    return render(
+        request, 'posts/include/comments.html',
+        {'form': form, 'post': post})
+
+
+@login_required
 def post_delete(request, username, post_id):
     post = get_object_or_404(
         Post, author__username=username, id=post_id)
@@ -123,20 +139,3 @@ def page_not_found(request, exception):
 
 def server_error(request):
     return render(request, "misc/500.html", status=500)
-
-
-@login_required
-def add_comment(request, username, post_id):
-    post = get_object_or_404(Post, author__username=username, id=post_id)
-    form = CommentForm(request.POST or None)
-    if form.is_valid():
-        comment = form.save(commit=False)
-        comment.post = post
-        comment.author = request.user
-        comment.save()
-        return redirect(
-            'post', post_id=post.id, username=post.author.username)
-    return render(
-        request, 'posts/include/comments.html',
-        {'form': form, 'post': post})
-
