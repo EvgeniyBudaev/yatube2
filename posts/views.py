@@ -2,6 +2,8 @@ from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
+from django.test import Client, TestCase
+from django.urls import reverse
 
 
 from .models import Post, Group, Follow
@@ -178,3 +180,60 @@ def profile_unfollow(request, username):
     follow = get_object_or_404(Follow, author=author.id, user=request.user.id)
     follow.delete()
     return redirect('profile', username=username)
+
+
+class TestFollow(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.user_follower = User.objects.create_user(username='Tom')
+
+        cls.user_following = User.objects.create_user(username='Jerry')
+
+        cls.post = Post.objects.create(
+            text='Новая запись в ленте подписчиков',
+            author=TestFollow.user_following)
+
+    def setUp(self):
+        self.client_auth = Client()
+        self.client_auth.force_login(TestFollow.user_follower)
+
+    def test_follow_authorized_user(self):
+        self.client_auth.get(reverse(
+            'profile_follow', kwargs={
+                'username': TestFollow.user_following.username}))
+
+        self.assertEqual(Follow.objects.count(), 1)
+
+    def test_unfollow_authorized_user(self):
+        self.client_auth.get(reverse(
+            'profile_unfollow', kwargs={
+                'username': TestFollow.user_following.username}))
+
+        self.assertEqual(Follow.objects.count(), 0)
+
+    def test_follow_not_authorized_user(self):
+        response = self.client.get(reverse(
+            'profile_follow', kwargs={
+                'username': TestFollow.user_following.username}))
+
+        kw = {'username': TestFollow.user_following.username}
+        reverse_login = reverse('login')
+        reverse_follow = reverse('profile_follow', kwargs=kw)
+
+        self.assertRedirects(
+            response, f'{reverse_login}?next={reverse_follow}')
+
+    def test_check_new_post_from_follower(self):
+        Follow.objects.create(
+            user=TestFollow.user_follower, author=TestFollow.user_following)
+
+        response = self.client_auth.get(reverse('follow_index'))
+        self.assertContains(response, TestFollow.post.text)
+
+    def test_check_new_post_from_not_follower(self):
+        user_not_follower = User.objects.create_user(username='zhanna')
+        self.client.force_login(user_not_follower)
+
+        response = self.client.get(reverse('follow_index'))
+        self.assertNotContains(response, TestFollow.post.text)
