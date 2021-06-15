@@ -26,15 +26,18 @@ class Post(models.Model):
     group = models.ForeignKey(Group, null=True, blank=True,
                               verbose_name="Сообщество",
                               related_name="posts",
-                              on_delete=models.SET_NULL)
-    text = models.TextField(verbose_name="Текст поста")
+                              on_delete=models.SET_NULL,
+                              help_text='Выберите пожалуйста группу')
+    text = models.TextField(verbose_name="Текст поста",
+                            help_text='Введите пожалуйста текст вашего поста')
     pub_date = models.DateTimeField(auto_now_add=True,
                                     verbose_name="Дата публикации",
                                     db_index=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE,
                                related_name="posts", verbose_name="Автор")
     image = models.ImageField(upload_to='posts/', blank=True, null=True,
-                              verbose_name="Изображение")
+                              verbose_name="Изображение",
+                              help_text='Добавьте изображение к посту')
 
     class Meta:
         ordering = ["-pub_date"]
@@ -54,7 +57,9 @@ class Comment(models.Model):
                                on_delete=models.CASCADE,
                                related_name='comments',
                                verbose_name='Автор')
-    text = models.TextField(verbose_name='Текст комментария')
+    text = models.TextField(verbose_name='Текст комментария',
+                            help_text='Введите пожалуйста текст вашего '
+                                      'комментария')
     created = models.DateTimeField(auto_now_add=True,
                                    verbose_name='Дата комментария')
 
@@ -65,3 +70,45 @@ class Comment(models.Model):
 
     def __str__(self):
         return self.text
+
+
+class Follow(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='follower',
+        verbose_name='Подписчик')
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='following',
+        verbose_name='Автор')
+    subscribe_date = models.DateTimeField("date published",
+                                          auto_now_add=True,
+                                          db_index=True)
+
+    class Meta:
+        verbose_name = 'Подписчик'
+        verbose_name_plural = 'Подписчики'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'author'], name='unique subscribers')]
+
+    def __str__(self):
+        return f'{self.user} подписан на {self.author}'
+
+
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    photo = models.ImageField(
+        upload_to='users/',
+        default='users/avatar.png',
+        verbose_name='Аватарка',
+        help_text='Добавьте аватарку')
+
+    class Meta:
+        verbose_name_plural = 'Профили пользователей'
+        verbose_name = 'Профиль пользователя'
+
+    def __str__(self):
+        return self.user.username

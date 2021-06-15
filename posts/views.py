@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
 
 
-from .models import Post, Group
+from .models import Post, Group, Follow, Profile
 from .forms import PostForm, CommentForm
 from yatube2.settings import POSTS_IN_PAGINATOR
 
@@ -44,14 +44,41 @@ def profile(request, username):
     paginator = Paginator(posts, POSTS_IN_PAGINATOR)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
+    following = Follow.objects.filter(
+        user=request.user.id, author=author.id).all()
 
     context = {
         'page': page,
         'author': author,
-        "posts_count": author.posts.count()
+        "posts_count": author.posts.count(),
+        'is_active': True,
+        'following': following,
+        'follower_count': author.follower.count(),
+        'following_count': author.following.count()
     }
 
     return render(request, 'posts/profile.html', context)
+
+
+# def profile(request, username):
+#     profile = get_object_or_404(User, username=username)
+#     photo = get_object_or_404(Profile, user=profile)
+#     posts = profile.posts.all()
+#     paginator = Paginator(posts, 10)
+#     page_number = request.GET.get('page')
+#     page = paginator.get_page(page_number)
+#     following = Follow.objects.filter(
+#         user=request.user.id, author=profile.id).all()
+#     return render(
+#         request, 'posts/profile.html', {
+#             'photo': photo,
+#             'page': page,
+#             'count': posts.count(),
+#             'profile': profile,
+#             'is_active': True,
+#             'following': following,
+#             'follower_count': profile.follower.count(),
+#             'following_count': profile.following.count()})
 
 
 def post_view(request, username, post_id):
@@ -139,3 +166,36 @@ def page_not_found(request, exception):
 
 def server_error(request):
     return render(request, "misc/500.html", status=500)
+
+
+@login_required
+def follow_index(request):
+    posts = Post.objects.select_related('author').filter(
+        author__following__user=request.user).all()
+    paginator = Paginator(posts, 10)
+    page_number = request.GET.get('page')
+    page = paginator.get_page(page_number)
+    return render(
+        request,
+        'posts/follow.html',
+        {
+            'paginator': paginator,
+            'page': page})
+
+
+@login_required
+def profile_follow(request, username):
+    author = get_object_or_404(User, username=username)
+    follow = author.following.filter(
+        author=author.id, user=request.user.id).exists()
+    if not follow and request.user != author:
+        Follow.objects.create(author=author, user=request.user)
+    return redirect('profile', username=username)
+
+
+@login_required
+def profile_unfollow(request, username):
+    author = get_object_or_404(User, username=username)
+    follow = get_object_or_404(Follow, author=author.id, user=request.user.id)
+    follow.delete()
+    return redirect('profile', username=username)
