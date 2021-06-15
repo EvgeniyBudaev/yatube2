@@ -118,6 +118,22 @@ class PostsPagesTests(TestCase):
         self.assertEqual(response_page_not_found.status_code, 404)
 
 
+    def test_cache_index(self):
+        """Проверяем создается ли кеш главной страницы"""
+        client = Client()
+        user = User.objects.create_user(username='dmitriy',
+                                        password='novikov')
+        client.force_login(user)
+        cache.clear()
+        request = client.post(reverse('new_post'),
+                              {'author': user,
+                               'text': 'test_cache'},
+                              follow=True)
+        post = Post.objects.get(author=user)
+        x = cache.get('index_page')
+        x = cache._cache.keys()
+        self.assertIn('index_page', f'{x}')
+
 class PaginatorViewsTest(TestCase):
     @classmethod
     def setUpClass(cls):

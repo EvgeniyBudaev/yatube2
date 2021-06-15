@@ -133,17 +133,29 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 MEDIA_URL = '/media/'
 MEDIA_ROOT = 'static/media'
 
+
 # Login
 
 LOGIN_URL = '/auth/login/'
 LOGIN_REDIRECT_URL = 'index'
 # LOGOUT_REDIRECT_URL = 'index'
 
+
 # Email
 
 EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
 EMAIL_FILE_PATH = os.path.join(BASE_DIR, "sent_emails")
 
+
 # Constants
 
 POSTS_IN_PAGINATOR = 10
+
+
+# Cache
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    }
+}
