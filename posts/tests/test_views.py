@@ -5,7 +5,7 @@ from django import forms
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.cache import cache
 
-from posts.models import Post, Group, Comment
+from posts.models import Post, Group, Comment, Follow
 
 
 User = get_user_model()

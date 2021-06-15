@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
 
 
-from .models import Post, Group, Follow, Profile
+from .models import Post, Group, Follow
 from .forms import PostForm, CommentForm
 from yatube2.settings import POSTS_IN_PAGINATOR
 
@@ -58,27 +58,6 @@ def profile(request, username):
     }
 
     return render(request, 'posts/profile.html', context)
-
-
-# def profile(request, username):
-#     profile = get_object_or_404(User, username=username)
-#     photo = get_object_or_404(Profile, user=profile)
-#     posts = profile.posts.all()
-#     paginator = Paginator(posts, 10)
-#     page_number = request.GET.get('page')
-#     page = paginator.get_page(page_number)
-#     following = Follow.objects.filter(
-#         user=request.user.id, author=profile.id).all()
-#     return render(
-#         request, 'posts/profile.html', {
-#             'photo': photo,
-#             'page': page,
-#             'count': posts.count(),
-#             'profile': profile,
-#             'is_active': True,
-#             'following': following,
-#             'follower_count': profile.follower.count(),
-#             'following_count': profile.following.count()})
 
 
 def post_view(request, username, post_id):
