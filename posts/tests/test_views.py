@@ -5,7 +5,8 @@ from django import forms
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.cache import cache
 
-from posts.models import Post, Group
+from posts.models import Post, Group, Comment
+
 
 User = get_user_model()
 
@@ -138,3 +139,44 @@ class PaginatorViewsTest(TestCase):
             reverse('index') + '?page=2'
         )
         self.assertEqual(len(response.context.get('page').object_list), 5)
+
+
+class TestComment(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.user = User.objects.create_user(username='Jack')
+
+        cls.post = Post.objects.create(text='Просто текст', author=cls.user)
+
+    def test_authorized_user_comments_posts(self):
+        self.client.force_login(TestComment.user)
+
+        self.client.post(
+            reverse(
+                'add_comment',
+                kwargs={
+                    'username': TestComment.user.username,
+                    'post_id': TestComment.post.id}),
+                data={'text': 'Комментарий авторизированного пользователя'},
+                follow=True)
+
+        self.assertTrue(
+            Comment.objects.filter(
+                text='Комментарий авторизированного пользователя',
+                post_id=TestComment.post.id).exists())
+
+    def test_comment_notauthorized(self):
+        self.client.post(
+            reverse(
+                'add_comment',
+                kwargs={
+                    'username': TestComment.user.username,
+                    'post_id': TestComment.post.id}),
+                data={'text': 'Комментарий неавторизированного пользователя'},
+                follow=True)
+
+        self.assertFalse(
+            Comment.objects.filter(
+                text='Комментарий неавторизированного пользователя',
+                post_id=TestComment.post.id).exists())

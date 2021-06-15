@@ -103,13 +103,14 @@ resolver_match — специальный объект, соответствую
 #  Выборочный запуск тестов
 # Запустит все тесты проекта
 python3 manage.py test
+python manage.py test
 
 # Запустит только тесты в приложении posts
 python3 manage.py test posts
 
 # Запустит только тесты из файла test_urls.py в приложении posts
 python3 manage.py test posts.tests.test_urls
-python3 manage.py test posts.tests.test_views -v 2
+python manage.py test posts.tests.test_views -v 2
 
 # Запустит только тесты из класса StaticURLTests для test_urls.py в приложении posts
 python3 manage.py test posts.tests.test_urls.StaticURLTests
