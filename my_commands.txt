@@ -8,6 +8,7 @@ python manage.py runserver
 
 Создание виртуального окружения
 python3 -m venv venv
+python -m venv venv
 
 Запуск виртуального окружения проекта
 В Windows: .\venv\Scripts\activate
@@ -107,6 +108,7 @@ python manage.py test
 
 # Запустит только тесты в приложении posts
 python3 manage.py test posts
+python manage.py test posts
 
 # Запустит только тесты из файла test_urls.py в приложении posts
 python3 manage.py test posts.tests.test_urls
