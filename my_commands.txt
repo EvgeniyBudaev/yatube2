@@ -79,8 +79,26 @@ git commit -m 'Директория static добавлена в gitignore'
 # Запушить
 git push
 
-
-
+# Хранение секретных ключей
+# Локальное хранение
+1) Создайте файл .env и запишите в него переменные в формате ключ=значение, по одной переменной на строку:
+TOKEN=123
+LOGIN=test
+SID=some_sid
+2) pip install python-dotenv
+3) import os
+from dotenv import load_dotenv
+load_dotenv()
+token = os.getenv('TOKEN')
+print(token)  # 123
+4) Файл .env должен лежать в той же директории, что и исполняемый файл.
+5) Проверьте, что в .gitignore есть строчка .env
+# Глобальное хранение
+1) Выполните в баше команду export token=123, это запишет токен в общее пространство переменных окружения.
+Просмотреть содержимое этого пространства можно командой env в терминале.
+2) import os
+account_sid = os.getenv("ACCOUNT_SID")
+auth_token = os.getenv("TOKEN") 
 
 #  Тестирование
 python manage.py shell

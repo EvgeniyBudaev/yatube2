@@ -27,10 +27,12 @@ SECRET_KEY = '3zvv@2&hpsnkr$k!i(y*fyqvmz8m(^3309aqm5mq7xkfnlsn1-'
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    "localhost",
-    "127.0.0.1",
-    "[::1]",
-    "testserver",
+    # "localhost",
+    # "127.0.0.1",
+    # "[::1]",
+    # "testserver",
+    'www.ebudaev.pythonanywhere.com',
+    'ebudaev.pythonanywhere.com',
 ]
 
 
