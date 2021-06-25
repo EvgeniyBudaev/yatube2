@@ -98,7 +98,29 @@ print(token)  # 123
 Просмотреть содержимое этого пространства можно командой env в терминале.
 2) import os
 account_sid = os.getenv("ACCOUNT_SID")
-auth_token = os.getenv("TOKEN") 
+auth_token = os.getenv("TOKEN")
+
+# Логирование
+import logging
+Форматирование логов
+logging.basicConfig(format='%(asctime)s, %(levelname)s, %(name)s, %(message)s')
+Сохранение логов в файл
+logging.basicConfig(filename='main.log', filemode='w')
+
+# Ротация логов
+import logging
+from logging.handlers import RotatingFileHandler
+# здесь мы задаем глобальную конфигурацию для всех логеров
+logging.basicConfig(
+    level=logging.DEBUG,
+    filename='program.log',
+    format='%(asctime)s, %(levelname)s, %(message)s, %(name)s'
+)
+# а тут настраиваем логгер для текущего файла .py
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+handler = RotatingFileHandler('my_logger.log', maxBytes=50000000, backupCount=5)
+logger.addHandler(handler)
 
 #  Тестирование
 python manage.py shell
